@@ -54,9 +54,7 @@
                     "></div>
                 </div>
                 
-                <p class="font-mono text-sm text-gray-600 dark:text-gray-400 line-clamp-4 whitespace-pre-wrap">
-                    {{ Str::limit($note->content, 150) }}
-                </p>
+                <p class="font-mono text-sm text-gray-600 dark:text-gray-400 line-clamp-4 whitespace-pre-wrap">{{ Str::limit($note->content, 150) }}</p>
 
                 <div class="mt-4 pt-4 border-t border-arc-steel dark:border-gray-800 flex justify-between items-center text-xs font-mono text-gray-500">
                     <span>{{ $note->updated_at->format('Y.m.d H:i') }}</span>
@@ -195,6 +193,38 @@
         </div>
     </div>
 
+    <!-- GLITCH DELETE MODAL -->
+    <div id="delete-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
+        
+        <!-- Modal Content -->
+        <div id="delete-modal-content" class="relative bg-arc-card dark:bg-arc-slate border-2 border-red-600 p-8 max-w-md w-full shadow-2xl skew-x-0">
+            <!-- Glitch Decorative Elements -->
+            <div class="absolute top-0 left-0 w-full h-1 bg-red-600 animate-pulse"></div>
+            <div class="absolute bottom-0 left-0 w-full h-1 bg-red-600 animate-pulse"></div>
+            <div class="absolute -left-1 top-10 w-1 h-8 bg-red-600"></div>
+            <div class="absolute -right-1 bottom-10 w-1 h-8 bg-red-600"></div>
+
+            <h3 class="text-3xl font-bold text-red-600 uppercase tracking-tighter mb-4 animate-glitch-text">
+                >> CRITICAL WARNING
+            </h3>
+            <p class="font-mono text-sm text-gray-700 dark:text-gray-300 mb-8 border-l-2 border-red-600 pl-4 py-2">
+                Initiating termination protocol. Data integrity will be compromised. <br>
+                <span class="text-red-500 font-bold">THIS ACTION IS IRREVERSIBLE.</span>
+            </p>
+            
+            <div class="flex justify-end gap-4 font-mono text-sm">
+                <button onclick="closeDeleteModal()" class="px-6 py-3 border border-gray-400 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors uppercase tracking-wider">
+                    // ABORT
+                </button>
+                <button onclick="confirmDelete()" class="px-6 py-3 bg-red-600 text-white border border-red-600 hover:bg-red-700 hover:skew-x-6 transition-all duration-150 uppercase tracking-wider font-bold shadow-lg shadow-red-600/20">
+                    >> EXECUTE
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- SCRIPTS -->
     <script>
         function openCreateNoteModal() {
@@ -228,10 +258,27 @@
             document.getElementById('edit-note-modal').classList.add('hidden');
         }
 
+        // New Delete Logic
         function submitDeleteNote() {
-            if(confirm('CONFIRM DELETION? THIS ACTION CANNOT BE UNDONE.')) {
-                document.getElementById('delete-note-form').submit();
-            }
+            // Close Edit Modal first
+            closeEditNoteModal();
+            // Open Delete Modal
+            const modal = document.getElementById('delete-modal');
+            const content = document.getElementById('delete-modal-content');
+            modal.classList.remove('hidden');
+            content.classList.add('animate-glitch-entry');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.add('hidden');
+            // Re-open Edit Modal? No, usually cancel means cancel action.
+            // But if user wants to go back to editing, they can re-open note.
+            // Or we could re-open Edit Modal. 
+            // Better UX: Just close delete modal, let them re-open note if needed.
+        }
+
+        function confirmDelete() {
+            document.getElementById('delete-note-form').submit();
         }
     </script>
 @endsection

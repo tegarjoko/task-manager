@@ -128,11 +128,106 @@
                 <p class="font-mono text-xs tracking-widest uppercase mt-1 text-gray-500 dark:text-arc-gray">Tactical Command Interface // V.3.0</p>
             </a>
             <div class="flex items-center gap-4">
+                <button id="audio-toggle" class="text-arc-orange hover:text-white transition-colors" title="TOGGLE AUDIO">
+                    <!-- Speaker Icon (On) -->
+                    <svg id="icon-sound-on" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+                    <!-- Speaker Icon (Off) -->
+                    <svg id="icon-sound-off" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path></svg>
+                </button>
                 <div class="font-mono text-xs text-arc-orange animate-pulse">
                     SYS.ONLINE
                 </div>
             </div>
         </header>
+
+        <script>
+            // AUDIO SYSTEM
+            class SoundSystem {
+                constructor() {
+                    this.ctx = null;
+                    this.muted = localStorage.getItem('arc_muted') === 'true';
+                    this.updateIcon();
+                }
+
+                init() {
+                    if (!this.ctx) {
+                        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    }
+                    if (this.ctx.state === 'suspended') {
+                        this.ctx.resume();
+                    }
+                }
+
+                toggleMute() {
+                    this.muted = !this.muted;
+                    localStorage.setItem('arc_muted', this.muted);
+                    this.updateIcon();
+                    if (!this.muted) this.playTone(1200, 'sine', 0.1); // Feedback beep
+                }
+
+                updateIcon() {
+                    const onIcon = document.getElementById('icon-sound-on');
+                    const offIcon = document.getElementById('icon-sound-off');
+                    if (this.muted) {
+                        onIcon.classList.add('hidden');
+                        offIcon.classList.remove('hidden');
+                    } else {
+                        onIcon.classList.remove('hidden');
+                        offIcon.classList.add('hidden');
+                    }
+                }
+
+                playTone(freq, type, duration) {
+                    if (this.muted || !this.ctx) return;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    
+                    gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+                    
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                }
+
+                // FX PRESETS
+                hover() { this.playTone(2000 + Math.random()*500, 'sine', 0.05); }
+                click() { this.playTone(800, 'square', 0.1); }
+                success() {
+                    if (this.muted || !this.ctx) return;
+                    this.playTone(800, 'sine', 0.1);
+                    setTimeout(() => this.playTone(1200, 'sine', 0.2), 100);
+                }
+            }
+
+            const sfx = new SoundSystem();
+
+            // Initialize on interaction
+            document.addEventListener('click', () => sfx.init(), { once: true });
+
+            document.addEventListener('DOMContentLoaded', () => {
+                // Mute Toggle
+                document.getElementById('audio-toggle').addEventListener('click', () => sfx.toggleMute());
+
+                // Global Event Delegation for Dynamic Elements
+                document.body.addEventListener('mouseenter', (e) => {
+                    if (e.target.closest('a, button, .interactive')) {
+                        sfx.hover();
+                    }
+                }, true);
+
+                document.body.addEventListener('click', (e) => {
+                    if (e.target.closest('a, button, .interactive')) {
+                        sfx.click();
+                    }
+                }, true);
+            });
+        </script>
         
         <main class="bg-arc-card dark:bg-arc-slate arc-border p-8 relative overflow-hidden transition-colors duration-300">
             <!-- Decorative Corner Elements -->
