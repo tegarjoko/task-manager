@@ -48,6 +48,22 @@
                 </div>
             </a>
 
+            <!-- ARC.OPS MODULE -->
+            <a href="{{ route('ops.index') }}" class="group relative bg-arc-card dark:bg-arc-slate border border-arc-steel dark:border-gray-700 p-8 hover:border-arc-orange transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,85,0,0.15)] overflow-hidden md:col-span-2">
+                <!-- Glitch Overlay -->
+                <div class="absolute inset-0 bg-arc-orange/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-arc-orange/5 rounded-full blur-2xl group-hover:bg-arc-orange/10 transition-colors"></div>
+
+                <div class="relative z-10 flex flex-col items-center">
+                    <div class="mb-6 p-4 border border-arc-steel dark:border-gray-600 rounded-full group-hover:border-arc-orange group-hover:text-arc-orange text-gray-400 transition-colors">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <h2 class="text-2xl font-bold uppercase tracking-widest text-arc-ink dark:text-white group-hover:text-arc-orange transition-colors">ARC.OPS</h2>
+                    <p class="font-mono text-xs text-gray-500 mt-2">TACTICAL TIMELINE & DEADLINES</p>
+                    <span class="mt-6 px-3 py-1 bg-green-900/20 text-green-500 border border-green-900/30 text-xs font-mono tracking-widest">STATUS: ONLINE</span>
+                </div>
+            </a>
+
         </div>
 
         <div class="mt-16 text-center">
