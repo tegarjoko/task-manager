@@ -8,4 +8,5 @@ Route::get('/', function () {
 })->name('home');
 
 Route::resource('tasks', TaskController::class);
+Route::get('notes/{note}/export', [\App\Http\Controllers\NoteController::class , 'export'])->name('notes.export');
 Route::resource('notes', \App\Http\Controllers\NoteController::class);

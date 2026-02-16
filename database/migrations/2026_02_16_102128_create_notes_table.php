@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('title');
             $table->longText('content')->nullable();
             $table->string('color')->default('gray'); // for tactical color coding
+            $table->json('tags')->nullable(); // Tactical keywords
             $table->boolean('is_pinned')->default(false);
             $table->timestamps();
         });

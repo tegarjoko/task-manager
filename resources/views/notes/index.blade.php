@@ -2,14 +2,28 @@
 
 @section('content')
     <!-- HEADER / TOOLBAR -->
-    <div class="flex justify-between items-center mb-8">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <div>
             <h2 class="text-3xl font-bold uppercase tracking-widest text-arc-ink dark:text-white">
                 <span class="text-arc-orange">>></span> Intel Archive
             </h2>
         </div>
         
-        <button onclick="openCreateNoteModal()" class="relative group bg-arc-orange text-black font-bold uppercase tracking-wider px-6 py-3 border border-arc-orange hover:bg-transparent hover:text-arc-orange transition-all duration-300">
+        <!-- SEARCH & FILTER -->
+        <form action="{{ route('notes.index') }}" method="GET" class="flex flex-grow gap-2 max-w-xl w-full">
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="// SEARCH INTEL DATABASE..." class="flex-grow bg-white dark:bg-gray-900 border border-arc-steel dark:border-gray-700 p-3 text-sm font-mono focus:border-arc-orange focus:outline-none text-arc-ink dark:text-white uppercase">
+            
+            <select name="color" onchange="this.form.submit()" class="bg-white dark:bg-gray-900 border border-arc-steel dark:border-gray-700 p-3 text-sm font-mono focus:border-arc-orange focus:outline-none text-arc-ink dark:text-white uppercase w-32">
+                <option value="">ALL CLASS</option>
+                <option value="gray" {{ request('color') == 'gray' ? 'selected' : '' }}>STANDARD</option>
+                <option value="blue" {{ request('color') == 'blue' ? 'selected' : '' }}>TACTICAL</option>
+                <option value="green" {{ request('color') == 'green' ? 'selected' : '' }}>SECURE</option>
+                <option value="orange" {{ request('color') == 'orange' ? 'selected' : '' }}>WARNING</option>
+                <option value="red" {{ request('color') == 'red' ? 'selected' : '' }}>CRITICAL</option>
+            </select>
+        </form>
+
+        <button onclick="openCreateNoteModal()" class="relative group bg-arc-orange text-black font-bold uppercase tracking-wider px-6 py-3 border border-arc-orange hover:bg-transparent hover:text-arc-orange transition-all duration-300 whitespace-nowrap">
              <span class="absolute top-0 right-0 w-2 h-2 bg-arc-paper dark:bg-arc-slate -mr-1 -mt-1 group-hover:bg-arc-orange transition-colors"></span>
              <span class="absolute bottom-0 left-0 w-2 h-2 bg-arc-paper dark:bg-arc-slate -ml-1 -mb-1 group-hover:bg-arc-orange transition-colors"></span>
              // RECORD DATA
@@ -35,7 +49,12 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @forelse ($notes as $note)
             <div onclick='openEditNoteModal(@json($note))' class="group cursor-pointer relative bg-arc-card dark:bg-arc-slate border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg
-                {{ $note->is_pinned ? 'border-arc-orange shadow-[0_0_10px_rgba(255,85,0,0.1)]' : 'border-arc-steel dark:border-gray-700 hover:border-arc-orange' }}
+                {{ $note->is_pinned ? 'shadow-[0_0_15px_rgba(255,85,0,0.15)]' : '' }}
+                {{ $note->color == 'gray' ? 'border-arc-steel dark:border-gray-700 hover:border-gray-500' : '' }}
+                {{ $note->color == 'blue' ? 'border-blue-500 hover:border-blue-400' : '' }}
+                {{ $note->color == 'green' ? 'border-green-500 hover:border-green-400' : '' }}
+                {{ $note->color == 'orange' ? 'border-orange-500 hover:border-orange-400' : '' }}
+                {{ $note->color == 'red' ? 'border-red-500 hover:border-red-400' : '' }}
             ">
                 @if($note->is_pinned)
                     <div class="absolute -top-2 -right-2 w-4 h-4 bg-arc-orange rotate-45"></div>
@@ -45,18 +64,23 @@
                     <h3 class="font-bold uppercase tracking-wider text-lg text-arc-ink dark:text-white group-hover:text-arc-orange transition-colors">
                         {{ $note->title }}
                     </h3>
-                    <div class="w-2 h-2 rounded-full 
-                        {{ $note->color == 'blue' ? 'bg-blue-500' : '' }}
-                        {{ $note->color == 'green' ? 'bg-green-500' : '' }}
-                        {{ $note->color == 'orange' ? 'bg-orange-500' : '' }}
-                        {{ $note->color == 'red' ? 'bg-red-500' : '' }}
-                        {{ $note->color == 'gray' ? 'bg-gray-500' : '' }}
-                    "></div>
                 </div>
                 
-                <p class="font-mono text-sm text-gray-600 dark:text-gray-400 line-clamp-4 whitespace-pre-wrap">{{ Str::limit($note->content, 150) }}</p>
+                <!-- Decryption Effect Area -->
+                <div class="relative overflow-hidden font-mono text-sm text-gray-600 dark:text-gray-400 line-clamp-4 h-24 mb-4 encrypted-container" data-original="{{ Str::limit($note->content, 150) }}">
+                   <p class="scrambled-text">{{ Str::limit($note->content, 150) }}</p>
+                </div>
 
-                <div class="mt-4 pt-4 border-t border-arc-steel dark:border-gray-800 flex justify-between items-center text-xs font-mono text-gray-500">
+                <!-- Tags Display -->
+                @if($note->tags && count($note->tags) > 0)
+                <div class="flex flex-wrap gap-2 mb-4">
+                    @foreach($note->tags as $tag)
+                        <span class="text-[10px] font-mono bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 uppercase tracking-wider border border-gray-300 dark:border-gray-700">#{{ $tag }}</span>
+                    @endforeach
+                </div>
+                @endif
+
+                <div class="mt-auto pt-4 border-t border-arc-steel dark:border-gray-800 flex justify-between items-center text-xs font-mono text-gray-500">
                     <span>{{ $note->updated_at->format('Y.m.d H:i') }}</span>
                     <span class="opacity-0 group-hover:opacity-100 transition-opacity text-arc-orange">>> ACCESS</span>
                 </div>
@@ -86,7 +110,12 @@
                     
                     <div>
                         <label class="block font-mono text-xs uppercase tracking-widest text-gray-500 mb-2">Data Packet</label>
-                        <textarea name="content" rows="6" class="w-full bg-arc-paper dark:bg-gray-900 border border-arc-steel dark:border-gray-700 text-arc-ink dark:text-white p-3 focus:border-arc-orange focus:outline-none font-mono text-sm transition-colors"></textarea>
+                        <textarea name="content" rows="6" class="w-full bg-arc-paper dark:bg-gray-900 border border-arc-steel dark:border-gray-700 text-arc-ink dark:text-white p-3 focus:border-arc-orange focus:outline-none font-mono text-sm transition-colors" placeholder="Supports Markdown (e.g., **bold**, *italic*)"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block font-mono text-xs uppercase tracking-widest text-gray-500 mb-2">Tags (#KEYWORDS)</label>
+                        <input type="text" name="tags" placeholder="intel, mission, urgent" class="w-full bg-arc-paper dark:bg-gray-900 border border-arc-steel dark:border-gray-700 text-arc-ink dark:text-white p-3 focus:border-arc-orange focus:outline-none font-mono text-sm transition-colors">
                     </div>
 
                     <div class="grid grid-cols-2 gap-6">
@@ -144,7 +173,12 @@
                     
                     <div>
                         <label class="block font-mono text-xs uppercase tracking-widest text-gray-500 mb-2">Data Packet</label>
-                        <textarea name="content" id="edit-content" rows="6" class="w-full bg-arc-paper dark:bg-gray-900 border border-arc-steel dark:border-gray-700 text-arc-ink dark:text-white p-3 focus:border-arc-orange focus:outline-none font-mono text-sm transition-colors"></textarea>
+                        <textarea name="content" id="edit-content" rows="6" class="w-full bg-arc-paper dark:bg-gray-900 border border-arc-steel dark:border-gray-700 text-arc-ink dark:text-white p-3 focus:border-arc-orange focus:outline-none font-mono text-sm transition-colors" placeholder="Supports Markdown"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block font-mono text-xs uppercase tracking-widest text-gray-500 mb-2">Tags (#KEYWORDS)</label>
+                        <input type="text" name="tags" id="edit-tags" placeholder="intel, mission, urgent" class="w-full bg-arc-paper dark:bg-gray-900 border border-arc-steel dark:border-gray-700 text-arc-ink dark:text-white p-3 focus:border-arc-orange focus:outline-none font-mono text-sm transition-colors">
                     </div>
 
                     <div class="grid grid-cols-2 gap-6">
@@ -176,6 +210,11 @@
                         [DELETE DATAPACK]
                     </button>
                     <div class="flex gap-4">
+                        <!-- EXPORT BUTTON -->
+                        <a id="export-link" href="#" class="px-6 py-2 border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white font-mono text-xs uppercase tracking-widest transition-colors flex items-center justify-center">
+                            [DOWNLOAD]
+                        </a>
+
                         <button type="button" onclick="closeEditNoteModal()" class="px-6 py-2 border border-gray-600 text-gray-400 hover:text-white hover:border-white font-mono text-xs uppercase tracking-widest transition-colors">
                             Cancel
                         </button>
@@ -227,6 +266,44 @@
 
     <!-- SCRIPTS -->
     <script>
+        // DECRYPTION EFFECT
+        document.addEventListener('DOMContentLoaded', () => {
+             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
+             
+             document.querySelectorAll('.encrypted-container').forEach(container => {
+                const originalText = container.getAttribute('data-original');
+                const textElement = container.querySelector('.scrambled-text');
+                let interval = null;
+
+                container.parentElement.addEventListener('mouseenter', () => {
+                    let iteration = 0;
+                    clearInterval(interval);
+                    
+                    interval = setInterval(() => {
+                        textElement.innerText = originalText
+                            .split('')
+                            .map((letter, index) => {
+                                if(index < iteration) {
+                                    return originalText[index];
+                                }
+                                return chars[Math.floor(Math.random() * chars.length)];
+                            })
+                            .join('');
+                        
+                        if(iteration >= originalText.length) { 
+                            clearInterval(interval);
+                        }
+                        
+                        iteration += 1/3;
+                    }, 30);
+                });
+
+                // Reset on leave (Optional: keeps decrypted or re-scrambles?)
+                // Choosing to keep decrypted on hover for readability, maybe reset if they leave very quickly?
+                // For now, let's just make it scramble IN on hover.
+             });
+        });
+
         function openCreateNoteModal() {
             const modal = document.getElementById('create-note-modal');
             const content = document.getElementById('create-note-content');
@@ -249,6 +326,10 @@
             document.getElementById('edit-content').value = note.content || '';
             document.getElementById('edit-color').value = note.color;
             document.getElementById('edit-is_pinned').checked = note.is_pinned;
+            document.getElementById('edit-tags').value = note.tags ? note.tags.join(', ') : '';
+            
+            // Set Export Link
+            document.getElementById('export-link').href = `/notes/${note.id}/export`;
 
             modal.classList.remove('hidden');
             content.classList.add('animate-glitch-entry');
