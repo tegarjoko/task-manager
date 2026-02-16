@@ -121,12 +121,12 @@
     <div id="app-background"></div>
     <div class="relative z-20 container mx-auto p-6 max-w-5xl pt-16">
         <header class="mb-12 border-b-2 border-arc-orange pb-4 flex justify-between items-end">
-            <div>
-                <h1 class="text-6xl font-bold uppercase tracking-tighter leading-none text-arc-ink dark:text-white">
-                    ARC<span class="text-arc-orange">.</span>Task
+            <a href="{{ route('home') }}" class="group">
+                <h1 class="text-6xl font-bold uppercase tracking-tighter leading-none text-arc-ink dark:text-white group-hover:text-arc-orange transition-colors">
+                    ARC<span class="text-arc-orange">.</span>SYS
                 </h1>
-                <p class="font-mono text-xs tracking-widest uppercase mt-1 text-gray-500 dark:text-arc-gray">Operational Directive // Version 2.1</p>
-            </div>
+                <p class="font-mono text-xs tracking-widest uppercase mt-1 text-gray-500 dark:text-arc-gray">Tactical Command Interface // V.3.0</p>
+            </a>
             <div class="flex items-center gap-4">
                 <div class="font-mono text-xs text-arc-orange animate-pulse">
                     SYS.ONLINE
