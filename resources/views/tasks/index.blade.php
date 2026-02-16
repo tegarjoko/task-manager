@@ -108,80 +108,58 @@
         </script>
     @endif
 
-    <div class="bg-arc-card dark:bg-arc-slate border border-arc-steel dark:border-gray-800 transition-colors duration-300">
-        <table class="min-w-full text-left font-mono text-sm">
-            <thead>
-                <tr class="bg-arc-paper dark:bg-gray-900 border-b border-arc-steel dark:border-gray-700 text-gray-600 dark:text-gray-500 uppercase tracking-wider transition-colors duration-300">
-                    <th class="py-4 px-6 border-r border-arc-steel dark:border-gray-800">
-                        <a href="{{ route('tasks.index', ['sort' => 'title', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center hover:text-arc-orange transition-colors">
-                            # Title
-                            @if(request('sort') == 'title')
-                                <span class="ml-1 text-xs">{{ request('direction') == 'asc' ? '▲' : '▼' }}</span>
+    @php
+        $pendingTasks = $tasks->where('is_completed', false);
+        $completedTasks = $tasks->where('is_completed', true);
+    @endphp
+
+    <!-- ACTIVE PROTOCOLS (PENDING) -->
+    <details open class="group mb-8">
+        <summary class="flex items-center cursor-pointer list-none mb-4 select-none">
+            <span class="text-arc-orange mr-2 transition-transform duration-300 group-open:rotate-90 text-xs">▶</span>
+            <h3 class="text-xl font-bold uppercase tracking-widest text-arc-ink dark:text-white">Active Protocols <span class="text-gray-500 text-sm ml-2">// {{ $pendingTasks->count() }}</span></h3>
+            <div class="h-px bg-arc-steel dark:bg-gray-800 flex-grow ml-4"></div>
+        </summary>
+        
+        <div class="bg-arc-card dark:bg-arc-slate border border-arc-steel dark:border-gray-800 transition-colors duration-300">
+            <table class="min-w-full text-left font-mono text-sm">
+                <thead>
+                    <tr class="bg-arc-paper dark:bg-gray-900 border-b border-arc-steel dark:border-gray-700 text-gray-600 dark:text-gray-500 uppercase tracking-wider transition-colors duration-300">
+                        <th class="py-4 px-6 border-r border-arc-steel dark:border-gray-800"># Title</th>
+                        <th class="py-4 px-6 border-r border-arc-steel dark:border-gray-800">Details</th>
+                        <th class="py-4 px-6 text-center border-r border-arc-steel dark:border-gray-800">Priority</th>
+                        <th class="py-4 px-6 text-center border-r border-arc-steel dark:border-gray-800">Timeframe</th>
+                        <th class="py-4 px-6 text-center border-r border-arc-steel dark:border-gray-800">Status</th>
+                        <th class="py-4 px-6 text-center">CMD</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-arc-steel dark:divide-gray-800 transition-colors duration-300">
+                    @forelse ($pendingTasks as $task)
+                    <tr class="hover:bg-arc-paper dark:hover:bg-gray-800/50 transition duration-150 group">
+                        <td class="py-4 px-6 border-r border-arc-steel dark:border-gray-800 font-sans font-bold text-arc-ink dark:text-white group-hover:text-arc-orange transition-colors">
+                            {{ $task->title }}
+                        </td>
+                        <td class="py-4 px-6 border-r border-arc-steel dark:border-gray-800 text-gray-600 dark:text-gray-400">
+                            {{ Str::limit($task->description, 50) }}
+                        </td>
+                        <td class="py-4 px-6 text-center border-r border-arc-steel dark:border-gray-800">
+                            @if($task->urgency == 'critical')
+                                <span class="inline-block px-3 py-1 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-500 border border-red-300 dark:border-red-900 uppercase text-xs tracking-wider animate-pulse">Critical</span>
+                            @elseif($task->urgency == 'high')
+                                <span class="inline-block px-3 py-1 bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-arc-orange border border-orange-300 dark:border-orange-900 uppercase text-xs tracking-wider">High</span>
+                            @elseif($task->urgency == 'medium')
+                                <span class="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 border border-blue-300 dark:border-blue-900 uppercase text-xs tracking-wider">Med</span>
+                            @elseif($task->urgency == 'low')
+                                <span class="inline-block px-3 py-1 bg-gray-200 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 border border-gray-400 dark:border-gray-600 uppercase text-xs tracking-wider">Low</span>
                             @endif
-                        </a>
-                    </th>
-                    <th class="py-4 px-6 border-r border-arc-steel dark:border-gray-800">Details</th>
-                    <th class="py-4 px-6 text-center border-r border-arc-steel dark:border-gray-800">
-                         <a href="{{ route('tasks.index', ['sort' => 'urgency', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center justify-center hover:text-arc-orange transition-colors">
-                            Priority
-                            @if(request('sort') == 'urgency')
-                                <span class="ml-1 text-xs">{{ request('direction') == 'asc' ? '▲' : '▼' }}</span>
-                            @endif
-                        </a>
-                    </th>
-                    <th class="py-4 px-6 text-center border-r border-arc-steel dark:border-gray-800">
-                        <a href="{{ route('tasks.index', ['sort' => 'deadline', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center justify-center hover:text-arc-orange transition-colors">
-                            Timeframe
-                            @if(request('sort') == 'deadline')
-                                <span class="ml-1 text-xs">{{ request('direction') == 'asc' ? '▲' : '▼' }}</span>
-                            @endif
-                        </a>
-                    </th>
-                    <th class="py-4 px-6 text-center border-r border-arc-steel dark:border-gray-800">
-                        <a href="{{ route('tasks.index', ['sort' => 'is_completed', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc']) }}" class="flex items-center justify-center hover:text-arc-orange transition-colors">
-                            Status
-                            @if(request('sort') == 'is_completed')
-                                <span class="ml-1 text-xs">{{ request('direction') == 'asc' ? '▲' : '▼' }}</span>
-                            @endif
-                        </a>
-                    </th>
-                    <th class="py-4 px-6 text-center">CMD</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-arc-steel dark:divide-gray-800 transition-colors duration-300">
-                @forelse ($tasks as $task)
-                <tr class="hover:bg-arc-paper dark:hover:bg-gray-800/50 transition duration-150 group">
-                    <td class="py-4 px-6 border-r border-arc-steel dark:border-gray-800 font-sans font-bold text-arc-ink dark:text-white group-hover:text-arc-orange transition-colors">
-                        {{ $task->title }}
-                    </td>
-                    <td class="py-4 px-6 border-r border-arc-steel dark:border-gray-800 text-gray-600 dark:text-gray-400">
-                        {{ Str::limit($task->description, 50) }}
-                    </td>
-                    <td class="py-4 px-6 text-center border-r border-arc-steel dark:border-gray-800">
-                        @if($task->urgency == 'critical')
-                            <span class="inline-block px-3 py-1 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-500 border border-red-300 dark:border-red-900 uppercase text-xs tracking-wider animate-pulse">Critical</span>
-                        @elseif($task->urgency == 'high')
-                            <span class="inline-block px-3 py-1 bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-arc-orange border border-orange-300 dark:border-orange-900 uppercase text-xs tracking-wider">High</span>
-                        @elseif($task->urgency == 'medium')
-                            <span class="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 border border-blue-300 dark:border-blue-900 uppercase text-xs tracking-wider">Med</span>
-                        @elseif($task->urgency == 'low')
-                            <span class="inline-block px-3 py-1 bg-gray-200 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 border border-gray-400 dark:border-gray-600 uppercase text-xs tracking-wider">Low</span>
-                        @else
-                            <span class="text-gray-400 dark:text-gray-600">-</span>
-                        @endif
-                    </td>
-                    <td class="py-4 px-6 text-center border-r border-arc-steel dark:border-gray-800 text-gray-600 dark:text-gray-400">
-                        {{ $task->deadline ? $task->deadline->format('Y.m.d') : 'N/A' }}
-                    </td>
-                    <td class="py-4 px-6 text-center border-r border-arc-steel dark:border-gray-800">
-                        @if($task->is_completed)
-                            <span class="text-green-700 dark:text-green-500 uppercase tracking-widest text-xs border border-green-300 dark:border-green-900 px-2 py-1 bg-green-100 dark:bg-green-900/20">Complete</span>
-                        @else
+                        </td>
+                        <td class="py-4 px-6 text-center border-r border-arc-steel dark:border-gray-800 text-gray-600 dark:text-gray-400">
+                            {{ $task->deadline ? $task->deadline->format('Y.m.d') : 'N/A' }}
+                        </td>
+                        <td class="py-4 px-6 text-center border-r border-arc-steel dark:border-gray-800">
                             <span class="text-yellow-700 dark:text-yellow-500 uppercase tracking-widest text-xs border border-yellow-300 dark:border-yellow-900 px-2 py-1 bg-yellow-100 dark:bg-yellow-900/20">Pending</span>
-                        @endif
-                    </td>
-                    <td class="py-4 px-6 text-center flex justify-center gap-4">
-                        @if(!$task->is_completed)
+                        </td>
+                        <td class="py-4 px-6 text-center flex justify-center gap-4">
                             <form id="complete-form-{{ $task->id }}" action="{{ route('tasks.update', $task->id) }}" method="POST" onsubmit="showCompleteModal(event, {{ $task->id }})" class="inline">
                                 @csrf
                                 @method('PUT')
@@ -190,29 +168,92 @@
                                     [CHK]
                                 </button>
                             </form>
-                        @endif
-                        <button onclick='openEditModal(@json($task))' class="text-gray-500 hover:text-blue-700 dark:text-gray-500 dark:hover:text-blue-500 transition-colors" title="MODIFY">
-                             [MOD]
-                        </button>
-                        <form id="delete-form-{{ $task->id }}" action="{{ route('tasks.destroy', $task->id) }}" method="POST" onsubmit="showDeleteModal(event, {{ $task->id }})" class="inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-gray-500 hover:text-red-700 dark:text-gray-500 dark:hover:text-red-500 transition-colors" title="TERMINATE">
-                                 [DEL]
+                            <button onclick='openEditModal(@json($task))' class="text-gray-500 hover:text-blue-700 dark:text-gray-500 dark:hover:text-blue-500 transition-colors" title="MODIFY">
+                                    [MOD]
                             </button>
-                        </form>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="6" class="py-12 text-center text-gray-500 dark:text-gray-600 font-mono">
-                        NO ACTIVE DIRECTIVES FOUND IN DATABASE.
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
+                            <form id="delete-form-{{ $task->id }}" action="{{ route('tasks.destroy', $task->id) }}" method="POST" onsubmit="showDeleteModal(event, {{ $task->id }})" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-gray-500 hover:text-red-700 dark:text-gray-500 dark:hover:text-red-500 transition-colors" title="TERMINATE">
+                                        [DEL]
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="py-8 text-center text-gray-500 dark:text-gray-600 font-mono italic">
+                            // NO ACTIVE PROTOCOLS IN THIS SECTOR
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </details>
+
+    <!-- ARCHIVED LOGS (COMPLETED) -->
+    <details class="group mb-8">
+        <summary class="flex items-center cursor-pointer list-none mb-4 select-none">
+            <span class="text-arc-orange mr-2 transition-transform duration-300 group-open:rotate-90 text-xs">▶</span>
+            <h3 class="text-xl font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">Archived Logs <span class="text-gray-600 text-sm ml-2">// {{ $completedTasks->count() }}</span></h3>
+            <div class="h-px bg-arc-steel dark:bg-gray-800 flex-grow ml-4"></div>
+        </summary>
+        
+        <div class="bg-arc-card dark:bg-arc-slate border border-arc-steel dark:border-gray-800 transition-colors duration-300 opacity-75">
+            <table class="min-w-full text-left font-mono text-sm">
+                <thead>
+                    <tr class="bg-arc-paper dark:bg-gray-900 border-b border-arc-steel dark:border-gray-700 text-gray-600 dark:text-gray-500 uppercase tracking-wider transition-colors duration-300">
+                        <th class="py-4 px-6 border-r border-arc-steel dark:border-gray-800"># Title</th>
+                        <th class="py-4 px-6 border-r border-arc-steel dark:border-gray-800">Details</th>
+                        <th class="py-4 px-6 text-center border-r border-arc-steel dark:border-gray-800">Priority</th>
+                        <th class="py-4 px-6 text-center border-r border-arc-steel dark:border-gray-800">Timeframe</th>
+                        <th class="py-4 px-6 text-center border-r border-arc-steel dark:border-gray-800">Status</th>
+                        <th class="py-4 px-6 text-center">CMD</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-arc-steel dark:divide-gray-800 transition-colors duration-300">
+                    @forelse ($completedTasks as $task)
+                    <tr class="hover:bg-arc-paper dark:hover:bg-gray-800/50 transition duration-150 group">
+                        <td class="py-4 px-6 border-r border-arc-steel dark:border-gray-800 font-sans font-bold text-gray-500 dark:text-gray-400 line-through decoration-arc-orange decoration-2">
+                            {{ $task->title }}
+                        </td>
+                        <td class="py-4 px-6 border-r border-arc-steel dark:border-gray-800 text-gray-500 dark:text-gray-500">
+                            {{ Str::limit($task->description, 50) }}
+                        </td>
+                        <td class="py-4 px-6 text-center border-r border-arc-steel dark:border-gray-800">
+                            <span class="text-gray-400 dark:text-gray-600">-</span>
+                        </td>
+                        <td class="py-4 px-6 text-center border-r border-arc-steel dark:border-gray-800 text-gray-500 dark:text-gray-500">
+                            {{ $task->deadline ? $task->deadline->format('Y.m.d') : 'N/A' }}
+                        </td>
+                        <td class="py-4 px-6 text-center border-r border-arc-steel dark:border-gray-800">
+                            <span class="text-green-700 dark:text-green-500 uppercase tracking-widest text-xs border border-green-300 dark:border-green-900 px-2 py-1 bg-green-100 dark:bg-green-900/20">Complete</span>
+                        </td>
+                        <td class="py-4 px-6 text-center flex justify-center gap-4">
+                            <button onclick='openEditModal(@json($task))' class="text-gray-500 hover:text-blue-700 dark:text-gray-500 dark:hover:text-blue-500 transition-colors" title="MODIFY">
+                                    [MOD]
+                            </button>
+                            <form id="delete-form-{{ $task->id }}" action="{{ route('tasks.destroy', $task->id) }}" method="POST" onsubmit="showDeleteModal(event, {{ $task->id }})" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-gray-500 hover:text-red-700 dark:text-gray-500 dark:hover:text-red-500 transition-colors" title="TERMINATE">
+                                        [DEL]
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="py-8 text-center text-gray-500 dark:text-gray-600 font-mono italic">
+                            // NO ARCHIVED LOGS IN THIS SECTOR
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </details>
 
     <!-- PAGINATION -->
     @if ($tasks->hasPages())
