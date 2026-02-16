@@ -271,10 +271,11 @@
 
         function closeDeleteModal() {
             document.getElementById('delete-modal').classList.add('hidden');
-            // Re-open Edit Modal? No, usually cancel means cancel action.
-            // But if user wants to go back to editing, they can re-open note.
-            // Or we could re-open Edit Modal. 
-            // Better UX: Just close delete modal, let them re-open note if needed.
+            // Re-open Edit Modal
+            const editModal = document.getElementById('edit-note-modal');
+            const editContent = document.getElementById('edit-note-content');
+            editModal.classList.remove('hidden');
+            editContent.classList.add('animate-glitch-entry');
         }
 
         function confirmDelete() {

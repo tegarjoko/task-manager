@@ -44,7 +44,7 @@
                     </div>
                     <h2 class="text-2xl font-bold uppercase tracking-widest text-arc-ink dark:text-white group-hover:text-arc-orange transition-colors">ARC.NOTES</h2>
                     <p class="font-mono text-xs text-gray-500 mt-2">CLASSIFIED INTEL ARCHIVE</p>
-                    <span class="mt-6 px-3 py-1 bg-blue-900/20 text-blue-500 border border-blue-900/30 text-xs font-mono tracking-widest">STATUS: CONNECTING...</span>
+                    <span class="mt-6 px-3 py-1 bg-green-900/20 text-green-500 border border-green-900/30 text-xs font-mono tracking-widest">STATUS: ONLINE</span>
                 </div>
             </a>
 
